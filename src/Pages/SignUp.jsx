@@ -90,6 +90,9 @@ const SignUp = () => {
     setError(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+
+  
   const exisistingMail = userList.find((u) => u.email === regData.email);
   const handleSubmit = (e) => {
     e.preventDefault();

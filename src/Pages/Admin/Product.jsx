@@ -23,7 +23,7 @@ import { blue, green } from "@mui/material/colors";
 import API from "../../API/apiinstance";
 import { products } from "../../API/apiendpoint";
 import { toast } from "sonner";
-import { Style } from "@mui/icons-material";
+import { Api, Style } from "@mui/icons-material";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -33,15 +33,28 @@ const Product = () => {
   const navigate = useNavigate();
   const [productList, setProductlist] = useState([]);
   const [open, setOpen] = useState(false);
-  const [deleteID,setDeleteID] = useState();
+  const [deleteID,setDeleteID] = useState(null);
 
-   const handleClickOpen = () => {
-    setOpen(true);
+
+   const hanleDelete = async() => {
+
+    if(deleteID){
+      try {
+        await API.delete(`${products}/${deleteID}`,productList)
+        toast("Product deleted")
+        const resdata = await API.get(products);
+        setProductlist(resdata.data);
+      } catch (error) {
+        console.log(error);
+        
+      }
+    }
+
+    console.log("deleted",deleteID);
+    
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+ 
 
 
   useEffect(() => {
@@ -147,7 +160,7 @@ const Product = () => {
               <EditIcon />
             </IconButton>
 
-            <IconButton sx={{ color: "red" }} onClick={handleClickOpen}>
+            <IconButton sx={{ color: "red" }} onClick={()=>{setOpen(true);setDeleteID(params?.row?.id)}}>
               <DeleteIcon />
               
             </IconButton>
@@ -160,6 +173,10 @@ const Product = () => {
 
 
   const paginationModel = { page: 0, pageSize: 5 };
+  const handleDelete = () =>{
+    console.log("deleted id",deleteID);
+    
+  }
 
   return (
     <>
@@ -201,7 +218,7 @@ const Product = () => {
           transition: Transition,
         }}
         keepMounted
-        onClose={handleClose}
+        onClose={()=>{setOpen(false),setDeleteID(null)}}
         aria-describedby="alert-dialog-slide-description"
       >
         <DialogTitle>{"Delete Item From Data"}</DialogTitle>
@@ -211,8 +228,8 @@ const Product = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Delete</Button>
-          <Button onClick={handleClose}>Cancel</Button>
+          <Button  onClick={()=>{hanleDelete();setOpen(false)}}>Delete</Button>
+          <Button onClick={()=>{setOpen(false);setDeleteID(null)}}>Cancel</Button>
         </DialogActions>
       </Dialog>
       </Container>
